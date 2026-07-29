@@ -1,8 +1,4 @@
 {
-  "claude": {
-    "type": "api",
-    "key": "sk-ant-..."
-  },
   "glm": {
     "type": "api",
     "key": "..."

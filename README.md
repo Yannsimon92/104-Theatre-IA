@@ -3,6 +3,11 @@
 Générateur de dialogue théâtral entre deux personnages joués chacun par un
 agent IA différent (Claude pour Philippe, GLM-5.2 pour Noa).
 
+Philippe (Claude) est généré via le CLI [Claude Code](https://claude.com/claude-code)
+en mode headless (`claude -p`), donc via ton abonnement Pro/Max (`claude login`) —
+pas de clé API Anthropic à payer séparément. Noa (GLM) utilise l'API Zhipu
+classique, avec une clé API.
+
 ## Structure du projet
 
 ```
@@ -15,7 +20,7 @@ theatre_ia/
 │   └── noa.yaml              # fiche + system prompt de Noa
 ├── output/                  # scènes générées (créé automatiquement)
 ├── requirements.txt
-└── auth.json.example         # à copier en auth.json avec tes clés API
+└── auth.json.example         # à copier en auth.json avec ta clé API GLM
 ```
 
 ## Installation
@@ -25,13 +30,17 @@ cd theatre_ia
 python -m venv venv
 source venv/bin/activate   # sous Windows : venv\Scripts\activate
 pip install -r requirements.txt
+claude login                # si ce n'est pas déjà fait (compte Pro/Max)
 cp auth.json.example auth.json
-# puis édite auth.json et mets tes vraies clés API
+# puis édite auth.json et mets ta vraie clé API GLM
 ```
 
-Les clés API (`claude`, `glm`) sont lues dans `auth.json` (jamais commité) ou,
-à défaut, dans les variables d'environnement `ANTHROPIC_API_KEY` /
-`ZHIPU_API_KEY`.
+Le CLI `claude` doit être installé et accessible dans le PATH (`npm install -g
+@anthropic-ai/claude-code` ou équivalent) — c'est lui qui gère l'auth Claude
+via ton abonnement, `main.py` ne s'en occupe pas.
+
+La clé API GLM est lue dans `auth.json` (`glm.key`, jamais commité) ou, à
+défaut, dans la variable d'environnement `ZHIPU_API_KEY`.
 
 ## Lancer une scène
 

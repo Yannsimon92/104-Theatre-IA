@@ -13,6 +13,7 @@ et renvoie la réplique générée (texte brut, sans le nom du personnage devant
 
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import requests
@@ -31,10 +32,9 @@ def _load_key(provider: str, env_var: str) -> str | None:
     return os.getenv(env_var)
 
 
-ANTHROPIC_API_KEY = _load_key("claude", "ANTHROPIC_API_KEY")
 ZHIPU_API_KEY = _load_key("glm", "ZHIPU_API_KEY")  # clé API GLM (BigModel / Zhipu AI)
 
-CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
+CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "sonnet")
 GLM_MODEL = os.getenv("GLM_MODEL", "glm-5.2")
 
 # Endpoint officiel Zhipu AI (compatible format chat completions)
@@ -42,30 +42,33 @@ GLM_API_URL = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
 
 
 def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9) -> str:
-    """Appelle l'API Anthropic pour générer la prochaine réplique."""
-    import anthropic
-
-    if not ANTHROPIC_API_KEY:
-        raise RuntimeError("ANTHROPIC_API_KEY manquante (auth.json ou variable d'environnement)")
-
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
+    """Génère la prochaine réplique via le CLI Claude Code en mode headless,
+    en utilisant l'abonnement Pro/Max déjà connecté (`claude login`) — pas de
+    clé API Anthropic. La température n'est pas réglable dans ce mode."""
     user_message = (
         f"Voici le dialogue jusqu'ici :\n\n{history_text}\n\n"
         f"Écris maintenant la prochaine réplique de ton personnage."
     )
 
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=400,
-        temperature=temperature,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_message}],
+    result = subprocess.run(
+        [
+            "claude", "-p", user_message,
+            "--system-prompt", system_prompt,
+            "--model", CLAUDE_MODEL,
+            "--tools", "",
+            "--no-session-persistence",
+            "--output-format", "text",
+        ],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=120,
     )
 
-    return "".join(
-        block.text for block in response.content if block.type == "text"
-    ).strip()
+    if result.returncode != 0:
+        raise RuntimeError(f"Échec de l'appel à `claude` : {result.stderr.strip()}")
+
+    return result.stdout.strip()
 
 
 def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) -> str:
