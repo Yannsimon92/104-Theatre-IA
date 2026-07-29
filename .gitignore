@@ -1,6 +1,6 @@
 venv/
 __pycache__/
 *.pyc
-.env
+auth.json
 output/*.md
 !output/.gitkeep

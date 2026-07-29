@@ -15,7 +15,7 @@ theatre_ia/
 │   └── noa.yaml              # fiche + system prompt de Noa
 ├── output/                  # scènes générées (créé automatiquement)
 ├── requirements.txt
-└── .env.example              # à copier en .env avec tes clés API
+└── auth.json.example         # à copier en auth.json avec tes clés API
 ```
 
 ## Installation
@@ -25,9 +25,13 @@ cd theatre_ia
 python -m venv venv
 source venv/bin/activate   # sous Windows : venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
-# puis édite .env et mets tes vraies clés API
+cp auth.json.example auth.json
+# puis édite auth.json et mets tes vraies clés API
 ```
+
+Les clés API (`claude`, `glm`) sont lues dans `auth.json` (jamais commité) ou,
+à défaut, dans les variables d'environnement `ANTHROPIC_API_KEY` /
+`ZHIPU_API_KEY`.
 
 ## Lancer une scène
 
@@ -64,7 +68,7 @@ en Markdown dans `output/scene_<timestamp>.md`.
 
 ## Notes sur les modèles
 
-- Le nom de modèle GLM (`GLM_MODEL` dans `.env`) et l'URL d'API dans
+- Le nom de modèle GLM (variable d'environnement `GLM_MODEL`) et l'URL d'API dans
   `agents.py` sont à vérifier/ajuster selon l'offre exacte de Zhipu AI au
   moment où tu lances le projet (les endpoints et noms de modèles évoluent).
 - Si tu préfères utiliser un autre fournisseur pour le rôle "GLM" (ex: OpenAI,

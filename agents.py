@@ -11,14 +11,28 @@ prend :
 et renvoie la réplique générée (texte brut, sans le nom du personnage devant).
 """
 
+import json
 import os
+from pathlib import Path
+
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+AUTH_FILE = Path(__file__).parent / "auth.json"
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-ZHIPU_API_KEY = os.getenv("ZHIPU_API_KEY")  # clé API GLM (BigModel / Zhipu AI)
+
+def _load_key(provider: str, env_var: str) -> str | None:
+    """Cherche la clé API dans auth.json, sinon dans les variables d'environnement."""
+    if AUTH_FILE.exists():
+        with open(AUTH_FILE, "r", encoding="utf-8") as f:
+            auth = json.load(f)
+        entry = auth.get(provider)
+        if entry and entry.get("key"):
+            return entry["key"]
+    return os.getenv(env_var)
+
+
+ANTHROPIC_API_KEY = _load_key("claude", "ANTHROPIC_API_KEY")
+ZHIPU_API_KEY = _load_key("glm", "ZHIPU_API_KEY")  # clé API GLM (BigModel / Zhipu AI)
 
 CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 GLM_MODEL = os.getenv("GLM_MODEL", "glm-5.2")
@@ -32,7 +46,7 @@ def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9)
     import anthropic
 
     if not ANTHROPIC_API_KEY:
-        raise RuntimeError("ANTHROPIC_API_KEY manquante dans .env")
+        raise RuntimeError("ANTHROPIC_API_KEY manquante (auth.json ou variable d'environnement)")
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -57,7 +71,7 @@ def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9)
 def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) -> str:
     """Appelle l'API GLM (Zhipu AI / BigModel) pour générer la prochaine réplique."""
     if not ZHIPU_API_KEY:
-        raise RuntimeError("ZHIPU_API_KEY manquante dans .env")
+        raise RuntimeError("ZHIPU_API_KEY manquante (auth.json ou variable d'environnement)")
 
     user_message = (
         f"Voici le dialogue jusqu'ici :\n\n{history_text}\n\n"
