@@ -5,8 +5,9 @@ agent IA différent (Claude pour Philippe, GLM-5.2 pour Noa).
 
 Philippe (Claude) est généré via le CLI [Claude Code](https://claude.com/claude-code)
 en mode headless (`claude -p`), donc via ton abonnement Pro/Max (`claude login`) —
-pas de clé API Anthropic à payer séparément. Noa (GLM) utilise l'API Zhipu
-classique, avec une clé API.
+pas de clé API Anthropic à payer séparément. Noa (GLM) passe par la
+passerelle [OpenCode Zen](https://opencode.ai/docs/zen) (plan "Go"), facturée
+sur ton compte opencode — pas de clé Zhipu séparée non plus.
 
 ## Structure du projet
 
@@ -20,7 +21,7 @@ theatre_ia/
 │   └── noa.yaml              # fiche + system prompt de Noa
 ├── output/                  # scènes générées (créé automatiquement)
 ├── requirements.txt
-└── auth.json.example         # à copier en auth.json avec ta clé API GLM
+└── auth.json.example         # optionnel, voir plus bas
 ```
 
 ## Installation
@@ -31,16 +32,19 @@ python -m venv venv
 source venv/bin/activate   # sous Windows : venv\Scripts\activate
 pip install -r requirements.txt
 claude login                # si ce n'est pas déjà fait (compte Pro/Max)
-cp auth.json.example auth.json
-# puis édite auth.json et mets ta vraie clé API GLM
+opencode auth login         # si ce n'est pas déjà fait (compte Zen)
 ```
 
-Le CLI `claude` doit être installé et accessible dans le PATH (`npm install -g
-@anthropic-ai/claude-code` ou équivalent) — c'est lui qui gère l'auth Claude
-via ton abonnement, `main.py` ne s'en occupe pas.
+`claude` et `opencode` doivent être installés et accessibles dans le PATH.
+Ce sont eux qui gèrent l'auth via tes abonnements respectifs — `main.py` ne
+s'en occupe pas.
 
-La clé API GLM est lue dans `auth.json` (`glm.key`, jamais commité) ou, à
-défaut, dans la variable d'environnement `ZHIPU_API_KEY`.
+La clé du compte Zen est retrouvée automatiquement dans l'`auth.json` global
+d'opencode (`~/.local/share/opencode/auth.json`, entrée `opencode-go` ou
+`opencode`). Tu n'as rien à configurer si `opencode auth login` a déjà été
+fait. Pour surcharger (autre compte, autre machine), copie
+`auth.json.example` en `auth.json` avec `zen.key`, ou exporte
+`OPENCODE_API_KEY`.
 
 ## Lancer une scène
 
@@ -77,9 +81,9 @@ en Markdown dans `output/scene_<timestamp>.md`.
 
 ## Notes sur les modèles
 
-- Le nom de modèle GLM (variable d'environnement `GLM_MODEL`) et l'URL d'API dans
-  `agents.py` sont à vérifier/ajuster selon l'offre exacte de Zhipu AI au
-  moment où tu lances le projet (les endpoints et noms de modèles évoluent).
+- Le nom de modèle GLM (variable d'environnement `GLM_MODEL`, défaut
+  `glm-5.2`) doit correspondre à un modèle listé par `opencode models` sous
+  le provider `opencode-go`.
 - Si tu préfères utiliser un autre fournisseur pour le rôle "GLM" (ex: OpenAI,
   Mistral, un modèle local via Ollama...), il suffit d'ajouter une nouvelle
   fonction `call_xxx` dans `agents.py` et de l'ajouter au dict `ENGINES`, puis

@@ -21,6 +21,18 @@ import requests
 AUTH_FILE = Path(__file__).parent / "auth.json"
 
 
+def _opencode_auth_candidates() -> list[Path]:
+    """Emplacements possibles de l'auth.json global d'opencode (géré par
+    `opencode auth login`). Inclut le home Windows vu depuis WSL (/mnt/c),
+    car opencode et son fichier d'auth vivent côté Windows alors que ce
+    script peut tourner côté WSL."""
+    candidates = [Path.home() / ".local" / "share" / "opencode" / "auth.json"]
+    mnt_c_users = Path("/mnt/c/Users")
+    if mnt_c_users.exists():
+        candidates.extend(mnt_c_users.glob("*/.local/share/opencode/auth.json"))
+    return candidates
+
+
 def _load_key(provider: str, env_var: str) -> str | None:
     """Cherche la clé API dans auth.json, sinon dans les variables d'environnement."""
     if AUTH_FILE.exists():
@@ -32,13 +44,32 @@ def _load_key(provider: str, env_var: str) -> str | None:
     return os.getenv(env_var)
 
 
-ZHIPU_API_KEY = _load_key("glm", "ZHIPU_API_KEY")  # clé API GLM (BigModel / Zhipu AI)
+def _load_zen_key() -> str | None:
+    """Clé du compte OpenCode Zen : auth.json du projet, sinon l'auth.json
+    global d'opencode (`opencode-go` / `opencode`), sinon variable d'env."""
+    key = _load_key("zen", "OPENCODE_API_KEY")
+    if key:
+        return key
+    for path in _opencode_auth_candidates():
+        if not path.exists():
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            auth = json.load(f)
+        for provider in ("opencode-go", "opencode"):
+            entry = auth.get(provider)
+            if entry and entry.get("key"):
+                return entry["key"]
+    return None
+
+
+ZEN_API_KEY = _load_zen_key()
 
 CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "sonnet")
 GLM_MODEL = os.getenv("GLM_MODEL", "glm-5.2")
 
-# Endpoint officiel Zhipu AI (compatible format chat completions)
-GLM_API_URL = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+# Endpoint OpenCode Zen (compatible OpenAI chat completions), facturé sur le
+# compte/abonnement opencode plutôt que sur une clé Zhipu séparée.
+ZEN_API_URL = "https://opencode.ai/zen/go/v1/chat/completions"
 
 
 def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9) -> str:
@@ -72,9 +103,14 @@ def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9)
 
 
 def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) -> str:
-    """Appelle l'API GLM (Zhipu AI / BigModel) pour générer la prochaine réplique."""
-    if not ZHIPU_API_KEY:
-        raise RuntimeError("ZHIPU_API_KEY manquante (auth.json ou variable d'environnement)")
+    """Génère la prochaine réplique via GLM sur la passerelle OpenCode Zen,
+    facturée sur le compte/abonnement opencode (pas de clé Zhipu séparée)."""
+    if not ZEN_API_KEY:
+        raise RuntimeError(
+            "Clé OpenCode Zen introuvable (auth.json du projet, auth.json "
+            "global d'opencode, ou variable d'environnement OPENCODE_API_KEY) "
+            "— lance `opencode auth login`"
+        )
 
     user_message = (
         f"Voici le dialogue jusqu'ici :\n\n{history_text}\n\n"
@@ -82,7 +118,7 @@ def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) ->
     )
 
     headers = {
-        "Authorization": f"Bearer {ZHIPU_API_KEY}",
+        "Authorization": f"Bearer {ZEN_API_KEY}",
         "Content-Type": "application/json",
     }
     payload = {
@@ -94,7 +130,7 @@ def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) ->
         ],
     }
 
-    resp = requests.post(GLM_API_URL, headers=headers, json=payload, timeout=60)
+    resp = requests.post(ZEN_API_URL, headers=headers, json=payload, timeout=60)
     resp.raise_for_status()
     data = resp.json()
 
