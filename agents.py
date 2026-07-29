@@ -81,20 +81,28 @@ def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9)
         f"Écris maintenant la prochaine réplique de ton personnage."
     )
 
-    result = subprocess.run(
-        [
-            "claude", "-p", user_message,
-            "--system-prompt", system_prompt,
-            "--model", CLAUDE_MODEL,
-            "--tools", "",
-            "--no-session-persistence",
-            "--output-format", "text",
-        ],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        timeout=120,
-    )
+    args = [
+        "claude", "-p", user_message,
+        "--system-prompt", system_prompt,
+        "--model", CLAUDE_MODEL,
+        "--tools", "",
+        "--no-session-persistence",
+        "--output-format", "text",
+    ]
+
+    for attempt in range(3):
+        try:
+            result = subprocess.run(
+                args,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=300,
+            )
+            break
+        except subprocess.TimeoutExpired:
+            if attempt == 2:
+                raise
 
     if result.returncode != 0:
         raise RuntimeError(f"Échec de l'appel à `claude` : {result.stderr.strip()}")
