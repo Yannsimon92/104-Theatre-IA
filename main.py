@@ -53,7 +53,31 @@ def render_history(history):
     return "\n".join(lignes) if lignes else "(La scène commence. Aucune réplique n'a encore été prononcée.)"
 
 
-def jouer_scene(config, personnages):
+def preparer_fichier_scene(config):
+    """Crée le fichier de sortie et y écrit l'en-tête tout de suite, pour que
+    les répliques déjà générées survivent même si le script plante en cours
+    de route (chaque tour est ajouté et flush au fur et à mesure)."""
+    dossier = ROOT / config["output"]["dossier"]
+    dossier.mkdir(exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    fichier = dossier / f"scene_{timestamp}.md"
+
+    with open(fichier, "w", encoding="utf-8") as f:
+        f.write(f"# {config['scene']['lieu']}\n\n")
+        f.write(f"*{config['scene']['moment']}*\n\n")
+        f.write("---\n\n")
+
+    return fichier
+
+
+def ajouter_replique(fichier, nom_affiche, texte):
+    with open(fichier, "a", encoding="utf-8") as f:
+        f.write(f"**{nom_affiche}** — {texte}\n\n")
+        f.flush()
+
+
+def jouer_scene(config, personnages, fichier):
     ordre_ids = list(personnages.keys())
     premier = config.get("premier_a_parler")
     if premier in ordre_ids:
@@ -91,6 +115,7 @@ def jouer_scene(config, personnages):
         )
 
         history.append({"nom_affiche": perso["nom_affiche"], "texte": replique})
+        ajouter_replique(fichier, perso["nom_affiche"], replique)
 
         print(f"[{perso['nom_affiche']}] (ivresse {ivresse}/10)")
         print(replique)
@@ -99,28 +124,13 @@ def jouer_scene(config, personnages):
     return history
 
 
-def sauvegarder_scene(history, config):
-    dossier = ROOT / config["output"]["dossier"]
-    dossier.mkdir(exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    fichier = dossier / f"scene_{timestamp}.md"
-
-    with open(fichier, "w", encoding="utf-8") as f:
-        f.write(f"# {config['scene']['lieu']}\n\n")
-        f.write(f"*{config['scene']['moment']}*\n\n")
-        f.write("---\n\n")
-        for tour in history:
-            f.write(f"**{tour['nom_affiche']}** — {tour['texte']}\n\n")
-
-    print(f"\nScène sauvegardée dans : {fichier}")
-
-
 def main():
     config = load_yaml("config.yaml")
     personnages = load_personnages(config)
-    history = jouer_scene(config, personnages)
-    sauvegarder_scene(history, config)
+    fichier = preparer_fichier_scene(config)
+    print(f"Scène en cours d'écriture dans : {fichier}")
+    jouer_scene(config, personnages, fichier)
+    print(f"\nScène terminée : {fichier}")
 
 
 if __name__ == "__main__":

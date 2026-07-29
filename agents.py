@@ -130,8 +130,14 @@ def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) ->
         ],
     }
 
-    resp = requests.post(ZEN_API_URL, headers=headers, json=payload, timeout=60)
-    resp.raise_for_status()
+    for attempt in range(3):
+        try:
+            resp = requests.post(ZEN_API_URL, headers=headers, json=payload, timeout=120)
+            resp.raise_for_status()
+            break
+        except requests.exceptions.RequestException:
+            if attempt == 2:
+                raise
     data = resp.json()
 
     return data["choices"][0]["message"]["content"].strip()
