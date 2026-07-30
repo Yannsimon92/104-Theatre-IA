@@ -6,6 +6,7 @@ Usage :
     python main.py
 """
 
+import re
 import yaml
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,12 @@ from pathlib import Path
 from agents import ENGINES
 
 ROOT = Path(__file__).parent
+
+# Plages Unicode à bannir des répliques en français (CJK, hiragana/katakana,
+# hangul, cyrillique) — artefacts occasionnels des modèles "raisonneurs".
+NON_LATIN_PATTERN = re.compile(
+    r"[一-鿿぀-ヿ가-힯Ѐ-ӿ]"
+)
 
 
 def load_yaml(path):
@@ -77,6 +84,50 @@ def ajouter_replique(fichier, nom_affiche, texte):
         f.flush()
 
 
+def nettoyer_prefixe_nom(texte, nom_affiche):
+    """Retire un éventuel préfixe où le modèle a réécrit son propre nom
+    devant sa réplique (ex: "NOA: ...", "Philippe : ..."). Filet de sécurité
+    en plus de la consigne dans le system prompt."""
+    pattern = re.compile(rf"^\s*{re.escape(nom_affiche)}\s*[:\-–—]\s*", re.IGNORECASE)
+    return pattern.sub("", texte, count=1).strip()
+
+
+def contient_caracteres_non_latins(texte):
+    return bool(NON_LATIN_PATTERN.search(texte))
+
+
+def generer_replique(perso, system_prompt_final, history_text, config):
+    """Appelle le moteur du personnage, nettoie le préfixe de nom, et
+    régénère automatiquement si des caractères non-latins sont détectés."""
+    call_fn = ENGINES[perso["moteur"]]
+    max_retries = config.get("max_retries_par_replique", 2)
+
+    derniere_replique = ""
+    for tentative in range(max_retries + 1):
+        replique = call_fn(
+            system_prompt=system_prompt_final,
+            history_text=history_text,
+            temperature=perso.get("temperature", 0.9),
+        )
+        replique = nettoyer_prefixe_nom(replique, perso["nom_affiche"])
+        derniere_replique = replique
+
+        if not contient_caracteres_non_latins(replique):
+            return replique
+
+        print(
+            f"  [!] Caractères non-latins détectés dans la réplique de "
+            f"{perso['nom_affiche']} (tentative {tentative + 1}/{max_retries + 1}), "
+            f"régénération..."
+        )
+
+    print(
+        f"  [!] Échec de nettoyage après {max_retries + 1} tentatives pour "
+        f"{perso['nom_affiche']}, réplique conservée telle quelle."
+    )
+    return derniere_replique
+
+
 def jouer_scene(config, personnages, fichier):
     ordre_ids = list(personnages.keys())
     premier = config.get("premier_a_parler")
@@ -107,12 +158,7 @@ def jouer_scene(config, personnages, fichier):
 
         history_text = render_history(history)
 
-        call_fn = ENGINES[perso["moteur"]]
-        replique = call_fn(
-            system_prompt=system_prompt_final,
-            history_text=history_text,
-            temperature=perso.get("temperature", 0.9),
-        )
+        replique = generer_replique(perso, system_prompt_final, history_text, config)
 
         history.append({"nom_affiche": perso["nom_affiche"], "texte": replique})
         ajouter_replique(fichier, perso["nom_affiche"], replique)
