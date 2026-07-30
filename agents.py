@@ -99,15 +99,13 @@ def call_claude(system_prompt: str, history_text: str, temperature: float = 0.9)
                 encoding="utf-8",
                 timeout=300,
             )
-            break
+            if result.returncode == 0:
+                return result.stdout.strip()
+            if attempt == 2:
+                raise RuntimeError(f"Échec de l'appel à `claude` : {result.stderr.strip()}")
         except subprocess.TimeoutExpired:
             if attempt == 2:
                 raise
-
-    if result.returncode != 0:
-        raise RuntimeError(f"Échec de l'appel à `claude` : {result.stderr.strip()}")
-
-    return result.stdout.strip()
 
 
 def call_glm(system_prompt: str, history_text: str, temperature: float = 1.0) -> str:
