@@ -10,19 +10,55 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
+<script>
+  /* initialiser le thème sans flash */
+  (function () {
+    const theme = localStorage.getItem('trianon-theme') || 'night';
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+
 <style>
   :root {
-    --bg: #14110f;
-    --bg-panel: #1c1712;
-    --bg-panel-2: #211a14;
-    --ink: #e9e1d1;
-    --ink-dim: #a89c87;
-    --line: #3a3128;
-    --accent: #d08b4a;
-    --accent-dim: #7a5330;
-    --noa: #93a89e;
-    --philippe: #c2986a;
-    --focus: #d08b4a;
+    /* Le Zinc Nocturne — Mode Nuit (Bar) */
+    --bg: #1A1716;
+    --bg-panel: #211C1A;
+    --bg-panel-2: #2A2320;
+    --ink: #EAE3D9;
+    --ink-dim: #9E9487;
+    --line: rgba(234, 227, 217, 0.12);
+    --line-hover: rgba(234, 227, 217, 0.22);
+    --accent: #D98A39;
+    --accent-dim: #A06A2C;
+    --accent-ghost: rgba(217, 138, 57, 0.06);
+    --noa: #A8383B;
+    --philippe: #D98A39;
+    --focus: #D98A39;
+    --glow: rgba(217, 138, 57, 0.10);
+    --shadow: rgba(0, 0, 0, 0.35);
+    --vignette: rgba(0, 0, 0, 0.22);
+    --grain-opacity: 0.04;
+  }
+
+  [data-theme="day"] {
+    /* Mode Jour (Papier) */
+    --bg: #F5F0E8;
+    --bg-panel: #FAF7F2;
+    --bg-panel-2: #EDE7DD;
+    --ink: #2A211D;
+    --ink-dim: #6D6156;
+    --line: rgba(42, 33, 29, 0.10);
+    --line-hover: rgba(42, 33, 29, 0.22);
+    --accent: #A0561C;
+    --accent-dim: #7A4215;
+    --accent-ghost: rgba(160, 86, 28, 0.08);
+    --noa: #9E2A2D;
+    --philippe: #A0561C;
+    --focus: #A0561C;
+    --glow: rgba(160, 86, 28, 0.08);
+    --shadow: rgba(42, 33, 29, 0.06);
+    --vignette: rgba(160, 86, 28, 0.04);
+    --grain-opacity: 0.025;
   }
 
   * { box-sizing: border-box; }
@@ -31,65 +67,108 @@
 
   body {
     margin: 0;
+    min-height: 100vh;
     background:
-      radial-gradient(ellipse 800px 500px at 15% -5%, rgba(208,139,74,0.07), transparent),
-      radial-gradient(ellipse 600px 400px at 90% 10%, rgba(147,168,158,0.05), transparent),
+      /* warm spot — zinc lamp over the bar */
+      radial-gradient(ellipse 900px 520px at 18% -8%, var(--glow), transparent 60%),
+      /* cooler spot — neon reflection */
+      radial-gradient(ellipse 650px 420px at 92% 8%, rgba(168, 56, 59, 0.05), transparent 55%),
+      /* vignette */
+      radial-gradient(ellipse 1400px 900px at 50% 0%, transparent 40%, var(--vignette) 100%),
       var(--bg);
     color: var(--ink);
     font-family: 'Newsreader', Georgia, serif;
-    line-height: 1.65;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.4s ease, color 0.4s ease;
   }
 
-  a { color: var(--accent); }
-  a:focus-visible, button:focus-visible {
+  /* grain / bruit de pellicule léger, inline SVG, aucune image externe */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  /* fine ligne d'accent en haut de fenêtre, façon néon de bar */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--noa) 18%, var(--accent) 50%, var(--noa) 82%, transparent 100%);
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 10000;
+  }
+
+  a { color: var(--accent); text-underline-offset: 0.18em; }
+  a:hover { color: var(--ink); }
+  a:focus-visible, button:focus-visible, select:focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 3px;
   }
 
   .wrap {
-    max-width: 700px;
+    max-width: 720px;
     margin: 0 auto;
     padding: 0 24px 96px;
+    position: relative;
   }
 
   /* ---------- HEADER ---------- */
 
   header.hero {
-    padding: 72px 0 40px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 40px;
+    padding: 64px 0 44px;
+    margin-bottom: 44px;
     position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+
+  header.hero::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 140px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
   }
 
   .eyebrow {
     font-family: 'Inter', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.16em;
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--ink-dim);
-    margin: 0 0 18px;
+    margin: 0 0 20px;
   }
 
   h1.title {
     font-family: 'Fraunces', serif;
     font-weight: 400;
-    font-size: clamp(2.4rem, 7vw, 3.6rem);
-    line-height: 1.05;
-    margin: 0 0 6px;
+    font-size: clamp(2.6rem, 8vw, 4.2rem);
+    line-height: 1.0;
+    margin: 0 0 10px;
     color: var(--ink);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   h1.title .flicker {
     color: var(--accent);
-    animation: neon-flicker 6s infinite;
+    animation: neon-flicker 5s infinite;
+    text-shadow: 0 0 22px var(--glow);
   }
 
   @keyframes neon-flicker {
-    0%, 92%, 94%, 96%, 100% { opacity: 1; }
-    93% { opacity: 0.35; }
-    95% { opacity: 0.7; }
+    0%, 91%, 93%, 95%, 100% { opacity: 1; }
+    92% { opacity: 0.25; }
+    94% { opacity: 0.65; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -100,43 +179,69 @@
     font-family: 'Newsreader', serif;
     font-style: italic;
     color: var(--ink-dim);
-    font-size: 1.05rem;
+    font-size: 1.08rem;
     margin: 0 0 28px;
+    letter-spacing: 0.01em;
   }
 
   .decor {
     font-family: 'Inter', sans-serif;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     color: var(--ink-dim);
-    line-height: 1.7;
-    max-width: 52ch;
+    line-height: 1.75;
+    max-width: 54ch;
+    letter-spacing: 0.01em;
   }
 
   .cast {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 28px;
+    gap: 16px;
+    margin-top: 32px;
   }
 
-  @media (max-width: 520px) {
+  @media (max-width: 540px) {
     .cast { grid-template-columns: 1fr; }
   }
 
   .card {
     background: var(--bg-panel);
     border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 16px 18px;
+    border-radius: 2px;
+    padding: 18px 20px;
+    position: relative;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.03),
+      0 12px 30px var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.4s ease;
   }
+
+  .card:hover {
+    border-color: var(--line-hover);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.05),
+      0 16px 38px var(--shadow);
+    transform: translateY(-2px);
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent);
+    opacity: 0.35;
+  }
+
+  .card.philippe::before { background: var(--philippe); }
+  .card.noa::before { background: var(--noa); }
 
   .card .name {
     font-family: 'Inter', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     font-weight: 500;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .card.philippe .name { color: var(--philippe); }
@@ -144,62 +249,115 @@
 
   .card .bio {
     font-family: 'Inter', sans-serif;
-    font-size: 0.83rem;
+    font-size: 0.8rem;
     color: var(--ink-dim);
-    line-height: 1.55;
+    line-height: 1.6;
   }
 
   .toolbar {
     display: flex;
-    gap: 10px;
-    margin-top: 28px;
+    gap: 12px;
+    margin-top: 32px;
     flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .theme-switch {
+    position: relative;
+  }
+
+  .theme-switch select {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    background: var(--bg-panel);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 9px 34px 9px 14px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.4s ease, color 0.4s ease;
+  }
+
+  .theme-switch::after {
+    content: "▾";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--ink-dim);
+    pointer-events: none;
+  }
+
+  .theme-switch select:hover {
+    border-color: var(--accent);
   }
 
   button.copy-btn {
     font-family: 'Inter', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
     background: transparent;
     color: var(--ink);
     border: 1px solid var(--line);
-    border-radius: 3px;
+    border-radius: 2px;
     padding: 9px 16px;
     cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
   }
 
-  button.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  button.copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-ghost);
+  }
 
   /* ---------- SCRIPT ---------- */
 
   main#script {
-    font-size: 1.05rem;
+    font-size: 1.08rem;
+    padding-top: 8px;
   }
 
   .turn {
-    margin-bottom: 34px;
+    margin-bottom: 42px;
+    padding-left: 18px;
+    border-left: 2px solid transparent;
+    transition: border-color 0.2s ease;
   }
+
+  .turn.philippe { border-left-color: rgba(217, 138, 57, 0.28); }
+  .turn.noa { border-left-color: rgba(168, 56, 59, 0.28); }
+
+  .turn:hover { border-left-color: var(--accent); }
+  .turn.philippe:hover { border-left-color: var(--philippe); }
+  .turn.noa:hover { border-left-color: var(--noa); }
 
   .speaker {
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 0.98rem;
-    letter-spacing: 0.06em;
-    margin: 0 0 8px;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
   }
 
   .turn.philippe .speaker { color: var(--philippe); }
   .turn.noa .speaker { color: var(--noa); }
 
   .turn p {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
   }
 
   .didascalie {
     font-family: 'Inter', sans-serif;
     font-style: italic;
     color: var(--ink-dim);
-    font-size: 0.92em;
+    font-size: 0.9em;
+    letter-spacing: 0.01em;
   }
 
   .scene-close {
@@ -207,35 +365,44 @@
     font-style: italic;
     color: var(--ink-dim);
     text-align: center;
-    margin-top: 48px;
-    font-size: 0.9rem;
+    margin: 52px 0 40px;
+    font-size: 0.88rem;
+    letter-spacing: 0.02em;
   }
 
   .divider {
     border: none;
     border-top: 1px solid var(--line);
-    margin: 40px 0;
+    margin: 44px 0;
   }
 
   .loading, .error {
     font-family: 'Inter', sans-serif;
     color: var(--ink-dim);
     font-size: 0.9rem;
-    padding: 20px 0;
+    padding: 24px 0;
   }
 
   .error a { text-decoration: underline; }
 
   footer {
-    margin-top: 64px;
-    padding-top: 24px;
+    margin-top: 72px;
+    padding-top: 28px;
     border-top: 1px solid var(--line);
     font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
     color: var(--ink-dim);
   }
 
   footer a { color: var(--ink-dim); }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 0 18px 72px; }
+    header.hero { padding: 48px 0 36px; }
+    .turn { padding-left: 14px; margin-bottom: 34px; }
+  }
 </style>
 </head>
 <body>
@@ -268,6 +435,12 @@
     </div>
 
     <div class="toolbar">
+      <div class="theme-switch">
+        <select id="themeSelect" aria-label="Changer de thème">
+          <option value="night">Mode Nuit (Bar)</option>
+          <option value="day">Mode Jour (Papier)</option>
+        </select>
+      </div>
       <button class="copy-btn" id="copyLink">Copier le lien</button>
     </div>
   </header>
@@ -388,6 +561,20 @@
       setTimeout(() => { copyBtn.textContent = original; }, 1800);
     });
   });
+
+  // sélecteur de thème Nuit / Jour
+  const themeSelect = document.getElementById('themeSelect');
+  if (themeSelect) {
+    const savedTheme = localStorage.getItem('trianon-theme') || 'night';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeSelect.value = savedTheme;
+
+    themeSelect.addEventListener('change', (e) => {
+      const theme = e.target.value;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('trianon-theme', theme);
+    });
+  }
 })();
 </script>
 
