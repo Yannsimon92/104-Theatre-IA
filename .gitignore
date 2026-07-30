@@ -8,3 +8,6 @@ output/*.md
 # Contenu de scène "réel" (perso, sensible) — privé, voir les .example
 config.yaml
 characters/*.yaml
+
+# Brief de design (référence sans LICENSE.txt associé) — usage local seulement
+SKILL.md

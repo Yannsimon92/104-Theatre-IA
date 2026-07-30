@@ -3,62 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Le Trianon, 1h du matin — Philippe &amp; Noa</title>
-<meta name="description" content="Dialogue théâtral généré par deux agents IA — Bar Le Trianon, 18e arrondissement, Paris.">
+<title>Le Trianon — Philippe &amp; Noa</title>
+<meta name="description" content="Scène de théâtre à deux voix générée par deux agents IA. Bar Le Trianon, 18e arrondissement, Paris, 1h du matin.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-
-<script>
-  /* initialiser le thème sans flash */
-  (function () {
-    const theme = localStorage.getItem('trianon-theme') || 'night';
-    document.documentElement.setAttribute('data-theme', theme);
-  })();
-</script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    /* Le Zinc Nocturne — Mode Nuit (Bar) */
-    --bg: #1A1716;
-    --bg-panel: #211C1A;
-    --bg-panel-2: #2A2320;
-    --ink: #EAE3D9;
-    --ink-dim: #9E9487;
-    --line: rgba(234, 227, 217, 0.12);
-    --line-hover: rgba(234, 227, 217, 0.22);
-    --accent: #D98A39;
-    --accent-dim: #A06A2C;
-    --accent-ghost: rgba(217, 138, 57, 0.06);
-    --noa: #A8383B;
-    --philippe: #D98A39;
-    --focus: #D98A39;
-    --glow: rgba(217, 138, 57, 0.10);
-    --shadow: rgba(0, 0, 0, 0.35);
-    --vignette: rgba(0, 0, 0, 0.22);
-    --grain-opacity: 0.04;
-  }
-
-  [data-theme="day"] {
-    /* Mode Jour (Papier) */
-    --bg: #F5F0E8;
-    --bg-panel: #FAF7F2;
-    --bg-panel-2: #EDE7DD;
-    --ink: #2A211D;
-    --ink-dim: #6D6156;
-    --line: rgba(42, 33, 29, 0.10);
-    --line-hover: rgba(42, 33, 29, 0.22);
-    --accent: #A0561C;
-    --accent-dim: #7A4215;
-    --accent-ghost: rgba(160, 86, 28, 0.08);
-    --noa: #9E2A2D;
-    --philippe: #A0561C;
-    --focus: #A0561C;
-    --glow: rgba(160, 86, 28, 0.08);
-    --shadow: rgba(42, 33, 29, 0.06);
-    --vignette: rgba(160, 86, 28, 0.04);
-    --grain-opacity: 0.025;
+    /* Papier de zinc — palette propre au sujet */
+    --zinc-paper: #E8E4DE;
+    --bar-ink: #211E19;
+    --pale-ink: #5C544B;
+    --zinc-line: #C9C1B4;
+    --amber-low: #9A6B2E;
+    --cold-blue: #4E5966;
+    --wine-red: #8A3A3A;
+    --shadow: rgba(42, 38, 34, 0.06);
   }
 
   * { box-sizing: border-box; }
@@ -69,128 +31,93 @@
     margin: 0;
     min-height: 100vh;
     background:
-      /* warm spot — zinc lamp over the bar */
-      radial-gradient(ellipse 900px 520px at 18% -8%, var(--glow), transparent 60%),
-      /* cooler spot — neon reflection */
-      radial-gradient(ellipse 650px 420px at 92% 8%, rgba(168, 56, 59, 0.05), transparent 55%),
-      /* vignette */
-      radial-gradient(ellipse 1400px 900px at 50% 0%, transparent 40%, var(--vignette) 100%),
-      var(--bg);
-    color: var(--ink);
-    font-family: 'Newsreader', Georgia, serif;
+      /* lumière chaude, faible, comme une lampe de table en haut à gauche */
+      radial-gradient(ellipse 80vw 50vh at 12% -8%, rgba(166, 123, 60, 0.12), transparent 55%),
+      /* reflet froid du miroir au fond */
+      radial-gradient(ellipse 50vw 35vh at 96% 6%, rgba(90, 101, 114, 0.06), transparent 50%),
+      var(--zinc-paper);
+    color: var(--bar-ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 17px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
-    transition: background 0.4s ease, color 0.4s ease;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* grain / bruit de pellicule léger, inline SVG, aucune image externe */
+  /* grain léger de pellicule, statique */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 9999;
-    opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* fine ligne d'accent en haut de fenêtre, façon néon de bar */
-  body::after {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, var(--noa) 18%, var(--accent) 50%, var(--noa) 82%, transparent 100%);
-    opacity: 0.45;
-    pointer-events: none;
-    z-index: 10000;
-  }
-
-  a { color: var(--accent); text-underline-offset: 0.18em; }
-  a:hover { color: var(--ink); }
-  a:focus-visible, button:focus-visible, select:focus-visible {
-    outline: 2px solid var(--focus);
+  a { color: var(--amber-low); text-decoration: underline; text-underline-offset: 0.18em; }
+  a:hover { color: var(--bar-ink); }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--amber-low);
     outline-offset: 3px;
   }
 
   .wrap {
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
-    padding: 0 24px 96px;
+    padding: 0 28px 120px;
     position: relative;
   }
 
   /* ---------- HEADER ---------- */
-
   header.hero {
-    padding: 64px 0 44px;
+    padding: 80px 0 48px;
     margin-bottom: 44px;
     position: relative;
-    border-bottom: 1px solid var(--line);
-  }
-
-  header.hero::after {
-    content: "";
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 140px;
-    height: 1px;
-    background: linear-gradient(90deg, var(--accent), transparent);
   }
 
   .eyebrow {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.68rem;
-    letter-spacing: 0.22em;
+    font-family: "Inter", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--ink-dim);
-    margin: 0 0 20px;
+    color: var(--pale-ink);
+    margin: 0 0 18px;
   }
 
   h1.title {
-    font-family: 'Fraunces', serif;
+    font-family: "Libre Caslon Display", Georgia, serif;
     font-weight: 400;
-    font-size: clamp(2.6rem, 8vw, 4.2rem);
-    line-height: 1.0;
-    margin: 0 0 10px;
-    color: var(--ink);
-    letter-spacing: -0.02em;
-  }
-
-  h1.title .flicker {
-    color: var(--accent);
-    animation: neon-flicker 5s infinite;
-    text-shadow: 0 0 22px var(--glow);
-  }
-
-  @keyframes neon-flicker {
-    0%, 91%, 93%, 95%, 100% { opacity: 1; }
-    92% { opacity: 0.25; }
-    94% { opacity: 0.65; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    h1.title .flicker { animation: none; }
+    font-size: clamp(3.2rem, 10vw, 5.6rem);
+    line-height: 0.95;
+    margin: 0;
+    color: var(--bar-ink);
+    letter-spacing: -0.03em;
+    text-shadow: 0 0 0.6px rgba(33, 30, 25, 0.18);
   }
 
   .subtitle {
-    font-family: 'Newsreader', serif;
-    font-style: italic;
-    color: var(--ink-dim);
-    font-size: 1.08rem;
-    margin: 0 0 28px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.92rem;
+    color: var(--pale-ink);
+    margin: 16px 0 0;
     letter-spacing: 0.01em;
   }
 
-  .decor {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.86rem;
-    color: var(--ink-dim);
+  .zinc-line {
+    height: 1px;
+    background: linear-gradient(90deg, var(--amber-low) 0%, var(--zinc-line) 35%, var(--zinc-line) 65%, transparent 100%);
+    margin: 36px 0 0;
+    opacity: 0.65;
+  }
+
+  .intro {
+    font-family: "Inter", sans-serif;
+    font-size: 0.92rem;
+    color: var(--pale-ink);
     line-height: 1.75;
-    max-width: 54ch;
-    letter-spacing: 0.01em;
+    max-width: 55ch;
+    margin: 30px 0 0;
   }
 
   .cast {
@@ -200,58 +127,34 @@
     margin-top: 32px;
   }
 
-  @media (max-width: 540px) {
-    .cast { grid-template-columns: 1fr; }
-  }
-
   .card {
-    background: var(--bg-panel);
-    border: 1px solid var(--line);
-    border-radius: 2px;
+    background: rgba(232, 228, 222, 0.55);
+    border: 1px solid var(--zinc-line);
     padding: 18px 20px;
     position: relative;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.03),
-      0 12px 30px var(--shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.4s ease;
   }
 
-  .card:hover {
-    border-color: var(--line-hover);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.05),
-      0 16px 38px var(--shadow);
-    transform: translateY(-2px);
-  }
-
-  .card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: var(--accent);
-    opacity: 0.35;
-  }
-
-  .card.philippe::before { background: var(--philippe); }
-  .card.noa::before { background: var(--noa); }
+  .card.philippe { border-top: 2px solid var(--cold-blue); }
+  .card.noa { border-top: 2px solid var(--wine-red); }
 
   .card .name {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
+    font-family: "Inter", sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 500;
-    margin-bottom: 8px;
+    margin: 0 0 8px;
   }
 
-  .card.philippe .name { color: var(--philippe); }
-  .card.noa .name { color: var(--noa); }
+  .card.philippe .name { color: var(--cold-blue); }
+  .card.noa .name { color: var(--wine-red); }
 
   .card .bio {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    color: var(--ink-dim);
-    line-height: 1.6;
+    font-family: "Inter", sans-serif;
+    font-size: 0.82rem;
+    color: var(--pale-ink);
+    line-height: 1.55;
+    margin: 0;
   }
 
   .toolbar {
@@ -262,186 +165,183 @@
     align-items: center;
   }
 
-  .theme-switch {
-    position: relative;
-  }
-
-  .theme-switch select {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    background: var(--bg-panel);
-    color: var(--ink);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    padding: 9px 34px 9px 14px;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.4s ease, color 0.4s ease;
-  }
-
-  .theme-switch::after {
-    content: "▾";
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.7rem;
-    color: var(--ink-dim);
-    pointer-events: none;
-  }
-
-  .theme-switch select:hover {
-    border-color: var(--accent);
-  }
-
   button.copy-btn {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
+    font-family: "Inter", sans-serif;
+    font-size: 0.76rem;
     letter-spacing: 0.04em;
     background: transparent;
-    color: var(--ink);
-    border: 1px solid var(--line);
-    border-radius: 2px;
+    color: var(--pale-ink);
+    border: 1px solid var(--zinc-line);
     padding: 9px 16px;
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
   }
 
   button.copy-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-ghost);
+    border-color: var(--amber-low);
+    color: var(--amber-low);
+    background: rgba(166, 123, 60, 0.06);
   }
 
   /* ---------- SCRIPT ---------- */
-
   main#script {
-    font-size: 1.08rem;
     padding-top: 8px;
   }
 
-  .turn {
-    margin-bottom: 42px;
-    padding-left: 18px;
-    border-left: 2px solid transparent;
-    transition: border-color 0.2s ease;
+  .opening {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-style: italic;
+    color: var(--pale-ink);
+    font-size: 0.98rem;
+    line-height: 1.65;
+    margin: 0 0 56px;
+    padding: 0 0 0 154px;
+    border-left: 1px solid var(--zinc-line);
   }
 
-  .turn.philippe { border-left-color: rgba(217, 138, 57, 0.28); }
-  .turn.noa { border-left-color: rgba(168, 56, 59, 0.28); }
+  .stage-direction {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-style: italic;
+    color: var(--pale-ink);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 40px;
+    padding: 0 0 0 154px;
+  }
 
-  .turn:hover { border-left-color: var(--accent); }
-  .turn.philippe:hover { border-left-color: var(--philippe); }
-  .turn.noa:hover { border-left-color: var(--noa); }
+  .turn {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 24px;
+    margin-bottom: 44px;
+    align-items: start;
+  }
 
   .speaker {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    letter-spacing: 0.08em;
+    font-family: "Inter", sans-serif;
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    margin: 0 0 10px;
+    text-align: right;
+    margin: 0.35em 0 0;
+    line-height: 1.4;
   }
 
-  .turn.philippe .speaker { color: var(--philippe); }
-  .turn.noa .speaker { color: var(--noa); }
+  .turn.philippe .speaker { color: var(--cold-blue); }
+  .turn.noa .speaker { color: var(--wine-red); }
 
   .turn p {
-    margin: 0 0 12px;
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 0 0 0.85em;
   }
 
+  .turn p:last-child { margin-bottom: 0; }
+
+  .turn p em { font-style: italic; }
+
   .didascalie {
-    font-family: 'Inter', sans-serif;
+    font-family: "IBM Plex Mono", monospace;
     font-style: italic;
-    color: var(--ink-dim);
-    font-size: 0.9em;
-    letter-spacing: 0.01em;
+    color: var(--pale-ink);
+    font-size: 0.82em;
   }
 
   .scene-close {
-    font-family: 'Inter', sans-serif;
+    font-family: "Source Serif 4", Georgia, serif;
     font-style: italic;
-    color: var(--ink-dim);
+    color: var(--pale-ink);
+    font-size: 0.95rem;
     text-align: center;
-    margin: 52px 0 40px;
-    font-size: 0.88rem;
-    letter-spacing: 0.02em;
-  }
-
-  .divider {
-    border: none;
-    border-top: 1px solid var(--line);
-    margin: 44px 0;
+    margin: 0 0 48px;
+    padding: 0 0 0 154px;
   }
 
   .loading, .error {
-    font-family: 'Inter', sans-serif;
-    color: var(--ink-dim);
-    font-size: 0.9rem;
+    font-family: "Inter", sans-serif;
+    color: var(--pale-ink);
+    font-size: 0.88rem;
     padding: 24px 0;
   }
 
-  .error a { text-decoration: underline; }
-
-  footer {
-    margin-top: 72px;
-    padding-top: 28px;
-    border-top: 1px solid var(--line);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.74rem;
-    letter-spacing: 0.02em;
-    color: var(--ink-dim);
+  .error code {
+    background: rgba(207, 200, 187, 0.45);
+    padding: 2px 6px;
+    font-size: 0.85em;
   }
 
-  footer a { color: var(--ink-dim); }
-  footer a:hover { color: var(--accent); }
+  footer {
+    margin-top: 96px;
+    padding-top: 28px;
+    border-top: 1px solid var(--zinc-line);
+    font-family: "Inter", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.01em;
+    color: var(--pale-ink);
+  }
 
-  @media (max-width: 480px) {
-    .wrap { padding: 0 18px 72px; }
-    header.hero { padding: 48px 0 36px; }
-    .turn { padding-left: 14px; margin-bottom: 34px; }
+  footer a { color: var(--pale-ink); }
+  footer a:hover { color: var(--amber-low); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 640px) {
+    .wrap { padding: 0 20px 80px; }
+    header.hero { padding: 56px 0 36px; }
+    .cast { grid-template-columns: 1fr; }
+    .turn {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding-left: 16px;
+      border-left: 2px solid transparent;
+      margin-bottom: 36px;
+    }
+    .turn.philippe { border-left-color: var(--cold-blue); }
+    .turn.noa { border-left-color: var(--wine-red); }
+    .speaker { text-align: left; margin: 0; }
+    .opening, .stage-direction, .scene-close { padding-left: 0; border-left: none; }
+  }
+
+  /* ---------- MOTION ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero { opacity: 0; transform: translateY(14px); animation: fadeIn 0.8s ease forwards; }
+    .turn { opacity: 0; transform: translateY(12px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .turn.is-visible { opacity: 1; transform: translateY(0); }
+
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
   }
 </style>
 </head>
 <body>
 
 <div class="wrap">
-
   <header class="hero">
     <p class="eyebrow">Théâtre généré par deux agents IA</p>
-    <h1 class="title">Le Trianon<span class="flicker">.</span></h1>
+    <h1 class="title">Le Trianon</h1>
     <p class="subtitle">Bar Le Trianon, 18e arrondissement, Paris — 1h du matin, un lundi soir.</p>
-    <p class="decor">
-      Un bar quasi désert. Le zinc n'a pas vu de chiffon propre depuis des
-      années. Un néon publicitaire grésille au-dessus du miroir. Deux
-      inconnus, deux tabourets l'un de l'autre, deux mondes qui ne se
-      croisent jamais — sauf un lundi soir, par accident.
+    <div class="zinc-line" aria-hidden="true"></div>
+    <p class="intro">
+      Un zinc poisseux, un néon qui grésille, deux tabourets de trop. Deux
+      inconnus qui ne se seraient jamais parlé en plein jour — sauf qu'à 1h du
+      matin, la lumière du bar permet ce que le jour interdit.
     </p>
 
     <div class="cast">
       <div class="card philippe">
         <p class="name">Philippe — 63 ans</p>
-        <p class="bio">Ancien chercheur et enseignant en immunologie,
-        licencié économique. Divorcé. Cynisme médical, élégance usée.
-        Registre Houellebecq.</p>
+        <p class="bio">Ancien chercheur en immunologie, licencié économique. Cynisme médical, élégance usée. Registre Houellebecq.</p>
       </div>
       <div class="card noa">
         <p class="name">Noa — 24 ans</p>
-        <p class="bio">Étudiante aux Beaux-Arts, artiste peintre, trans,
-        précaire. Fierté blessée, morgue à la Bandini. Registre Fante.</p>
+        <p class="bio">Étudiante aux Beaux-Arts, trans, précaire. Fierté blessée, lyrisme sous la morgue. Registre Fante.</p>
       </div>
     </div>
 
     <div class="toolbar">
-      <div class="theme-switch">
-        <select id="themeSelect" aria-label="Changer de thème">
-          <option value="night">Mode Nuit (Bar)</option>
-          <option value="day">Mode Jour (Papier)</option>
-        </select>
-      </div>
-      <button class="copy-btn" id="copyLink">Copier le lien</button>
+      <button class="copy-btn" id="copyLink" type="button">Copier le lien</button>
     </div>
   </header>
 
@@ -453,13 +353,11 @@
     <p>Généré par deux agents (Claude &amp; GLM), édité et resserré à la main.
     Projet — <a href="https://github.com/Yannsimon92/104-Theatre-IA" target="_blank" rel="noopener">104-Theatre-IA</a> sur GitHub.</p>
   </footer>
-
 </div>
 
 <script>
 (function () {
   const scriptEl = document.getElementById('script');
-
   const SPEAKER_RE = /\*\*(NOA|PHILIPPE)\*\*\s*—\s*/g;
 
   function escapeHtml(str) {
@@ -469,30 +367,58 @@
       .replace(/>/g, '&gt;');
   }
 
-  function renderTurnBody(raw) {
-    // Strip stray markdown emphasis markers, keep parentheses as didascalies.
-    const cleaned = raw.replace(/\*/g, '');
-    const paragraphs = cleaned
+  function renderParagraphs(raw) {
+    const cleaned = raw.trim();
+    if (!cleaned) return '';
+    return cleaned
       .split(/\n\s*\n/)
       .map(p => p.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .map(p => {
+        const escaped = escapeHtml(p);
+        const withEm = escaped.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+        const withDidascalies = withEm.replace(
+          /(\([^)]*\))/g,
+          '<span class="didascalie">$1</span>'
+        );
+        return `<p>${withDidascalies}</p>`;
+      })
+      .join('');
+  }
 
-    return paragraphs.map(p => {
-      const escaped = escapeHtml(p);
-      const withDidascalies = escaped.replace(
-        /(\([^)]*\))/g,
-        '<span class="didascalie">$1</span>'
-      );
-      return `<p>${withDidascalies}</p>`;
-    }).join('');
+  function renderOpening(text) {
+    const cleaned = text.replace(/\*/g, '').trim();
+    if (!cleaned) return '';
+    const escaped = escapeHtml(cleaned);
+    const withLines = escaped.replace(/\n/g, '<br>');
+    return `<p class="opening">${withLines}</p>`;
+  }
+
+  function renderStageDirection(text) {
+    const cleaned = text.replace(/^\*\(|\)\*$/g, '').trim();
+    if (!cleaned) return '';
+    return `<p class="stage-direction">(${escapeHtml(cleaned)})</p>`;
+  }
+
+  function parseScene(mdText) {
+    const parts = mdText.split(/\n---\n/);
+    const front = parts[0].trim();
+    const body = parts.slice(1).join('\n---\n').trim();
+
+    const frontLines = front.split('\n').map(l => l.trim()).filter(Boolean);
+    const title = frontLines[0] ? frontLines[0].replace(/^#\s*/, '') : '';
+    const opening = frontLines.slice(1).join('\n');
+
+    return { title, opening, body };
   }
 
   function renderScript(mdText) {
-    // Only take the part after the first scene divider ("---").
-    const dividerIndex = mdText.indexOf('\n---\n');
-    const body = dividerIndex >= 0
-      ? mdText.slice(dividerIndex + 5)
-      : mdText;
+    const { opening, body } = parseScene(mdText);
+    let html = '';
+
+    if (opening) {
+      html += renderOpening(opening);
+    }
 
     const matches = [];
     let m;
@@ -505,18 +431,12 @@
       return;
     }
 
-    let html = '';
-    // Anything before the first speaker tag that's wrapped in *(...)* is a
-    // pure stage direction (rare, but handle gracefully) — skipped here
-    // since scene_1.md opens directly with a speaker.
-
     for (let i = 0; i < matches.length; i++) {
       const current = matches[i];
       const end = (i + 1 < matches.length) ? matches[i + 1].start : body.length;
       let content = body.slice(current.contentStart, end).trim();
 
-      // Detect a trailing pure-italic closing stage direction
-      // (e.g. "*(Le néon grésille...)*") and render it separately.
+      // Didascalie de scène isolée en fin de réplique, ex. *(Le néon grésille...)*
       const closingMatch = content.match(/\*\(([^)]*)\)\*\s*$/);
       let closing = null;
       if (closingMatch) {
@@ -524,18 +444,41 @@
         content = content.slice(0, closingMatch.index).trim();
       }
 
+      // Didascalie de scène isolée en début de réplique
+      const openingMatch = content.match(/^\*\(([^)]*)\)\*\s*/);
+      if (openingMatch) {
+        html += renderStageDirection(openingMatch[1]);
+        content = content.slice(openingMatch[0].length).trim();
+      }
+
       const cls = current.name.toLowerCase();
       html += `<section class="turn ${cls}">`;
       html += `<p class="speaker">${current.name}</p>`;
-      html += renderTurnBody(content);
+      html += `<div class="lines">${renderParagraphs(content)}</div>`;
       html += `</section>`;
 
       if (closing) {
-        html += `<p class="scene-close">(${escapeHtml(closing)})</p>`;
+        html += renderStageDirection(closing);
       }
     }
 
     scriptEl.innerHTML = html;
+
+    if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+      const turns = document.querySelectorAll('.turn');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+      turns.forEach(t => observer.observe(t));
+    } else {
+      document.querySelectorAll('.turn').forEach(t => t.classList.add('is-visible'));
+    }
   }
 
   fetch('scene_1.md')
@@ -546,35 +489,21 @@
     .then(renderScript)
     .catch(() => {
       scriptEl.innerHTML =
-        '<p class="error">Impossible de charger scene_1.md. ' +
-        'Si tu ouvres ce fichier directement depuis ton disque ' +
-        '(file://), le navigateur bloque cette lecture — ' +
-        'lance un petit serveur local (<code>python3 -m http.server</code>) ' +
-        'ou consulte la page une fois publiée sur GitHub Pages.</p>';
+        '<p class="error">Impossible de charger <strong>scene_1.md</strong>.<br><br>' +
+        'Si tu ouvres ce fichier directement depuis ton disque (file://), le navigateur ' +
+        'bloque cette lecture par sécurité. Lance un petit serveur local :<br>' +
+        '<code>python3 -m http.server</code><br><br>' +
+        'Ou consulte la page une fois publiée sur GitHub Pages.</p>';
     });
 
   const copyBtn = document.getElementById('copyLink');
   copyBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(window.location.href).then(() => {
       const original = copyBtn.textContent;
-      copyBtn.textContent = 'Lien copié !';
+      copyBtn.textContent = 'Lien copié';
       setTimeout(() => { copyBtn.textContent = original; }, 1800);
     });
   });
-
-  // sélecteur de thème Nuit / Jour
-  const themeSelect = document.getElementById('themeSelect');
-  if (themeSelect) {
-    const savedTheme = localStorage.getItem('trianon-theme') || 'night';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeSelect.value = savedTheme;
-
-    themeSelect.addEventListener('change', (e) => {
-      const theme = e.target.value;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('trianon-theme', theme);
-    });
-  }
 })();
 </script>
 
