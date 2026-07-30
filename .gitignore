@@ -4,3 +4,7 @@ __pycache__/
 auth.json
 output/*.md
 !output/.gitkeep
+
+# Contenu de scène "réel" (perso, sensible) — privé, voir les .example
+config.yaml
+characters/*.yaml

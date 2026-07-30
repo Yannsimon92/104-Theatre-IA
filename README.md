@@ -32,14 +32,19 @@ theatre_ia/
 ├── main.py                   # orchestrateur : alterne les tours, nettoie
 │                              # les sorties (préfixes de nom, non-latin)
 ├── agents.py                  # wrappers d'appel (claude -p / OpenCode Zen)
-├── config.yaml                 # config de la scène (lieu, ivresse, tours...)
+├── config.yaml.example         # template — copie en config.yaml (gitignoré)
 ├── characters/
-│   ├── philippe.yaml           # fiche + system prompt de Philippe
-│   └── noa.yaml                  # fiche + system prompt de Noa
+│   ├── personnage_a.yaml.example # template moteur claude — copie et adapte
+│   └── personnage_b.yaml.example   # template moteur glm — copie et adapte
 ├── output/                    # scènes brutes générées par main.py
 ├── requirements.txt
 └── auth.json.example            # optionnel, voir plus bas
 ```
+
+> **Note** : `config.yaml` et `characters/*.yaml` (le vrai contenu de la
+> scène — fiches personnages, secrets, seuils d'intensité) sont gitignorés.
+> Seuls des templates génériques (`.example`) sont versionnés ; le rendu
+> final est publié séparément dans `scene_1.md`.
 
 ## Lire la pièce en ligne (GitHub Pages)
 
@@ -69,6 +74,12 @@ source venv/bin/activate   # sous Windows : venv\Scripts\activate
 pip install -r requirements.txt
 claude login                # si ce n'est pas déjà fait (compte Pro/Max)
 opencode auth login         # si ce n'est pas déjà fait (compte Zen)
+
+cp config.yaml.example config.yaml
+cp characters/personnage_a.yaml.example characters/personnage_a.yaml
+cp characters/personnage_b.yaml.example characters/personnage_b.yaml
+# édite ces 3 fichiers (gitignorés) avec ta propre scène et tes personnages
+
 python3 -u main.py
 ```
 
@@ -111,13 +122,14 @@ nouvelle scène brute :
 
 ## Comment ça marche
 
-- Chaque personnage a son propre fichier YAML (`characters/`) avec sa fiche
-  complète et son system prompt. Le prompt contient un placeholder
-  `{ivresse}` qui est rempli dynamiquement à chaque tour.
-- L'**ivresse** (0 à 10) augmente progressivement (paramètres dans
-  `config.yaml`), et conditionne à la fois le style d'écriture et le niveau
-  de confidence autorisé (voir "Progressivité des confidences" dans chaque
-  fiche personnage).
+- Chaque personnage a son propre fichier YAML (`characters/`, gitignoré,
+  voir les `.example`) avec sa fiche complète et son system prompt. Le
+  prompt contient un placeholder `{ivresse}` qui est rempli dynamiquement à
+  chaque tour.
+- L'**intensité** ("ivresse", 0 à 10) augmente progressivement (paramètres
+  dans `config.yaml`), et conditionne à la fois le style d'écriture et le
+  niveau de confidence autorisé (voir "Progressivité des confidences" dans
+  chaque fiche personnage).
 - Chaque agent ne voit que l'historique du dialogue déjà prononcé (texte brut
   "NOM: réplique"), jamais les instructions internes de l'autre personnage —
   comme au théâtre, chacun ignore les intentions cachées de l'autre.
@@ -130,11 +142,11 @@ nouvelle scène brute :
 ## Pour ajuster la pièce
 
 - **Nombre de répliques** : `max_turns` dans `config.yaml`
-- **Vitesse de montée de l'ivresse** : `ivresse.seuil_bascule` (plus il est
-  bas, plus l'ivresse monte vite)
+- **Vitesse de montée de l'intensité** : `ivresse.seuil_bascule` (plus il
+  est bas, plus ça monte vite)
 - **Qui parle en premier** : `premier_a_parler`
 - **Personnalité / ton / secrets de chaque personnage** : directement dans
-  `characters/philippe.yaml` et `characters/noa.yaml`
+  tes `characters/*.yaml` (partir des `.example` fournis comme base)
 - **Tolérance aux échecs de génération** : `max_retries_par_replique`
 
 ## Notes sur les modèles

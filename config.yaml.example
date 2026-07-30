@@ -1,0 +1,42 @@
+# Configuration de la scène / de la pièce — copie ce fichier en config.yaml
+# et adapte-le à ta propre scène (config.yaml est gitignoré : ton contenu
+# reste local).
+
+scene:
+  lieu: "[Lieu de la scène, ex: un bar, un café, un quai de gare...]"
+  moment: "[Moment de la journée / ambiance temporelle]"
+  contexte: >
+    [Décris ici le contexte de la rencontre entre les deux personnages :
+    qui ils sont l'un pour l'autre, pourquoi ils se retrouvent là, ce
+    soir-là, ce qui les oppose ou les rapproche.]
+
+# Nombre total de répliques échangées (une réplique = un tour d'un personnage)
+max_turns: 30
+
+# "Intensité" de la scène : monte progressivement de 0 (calme) à 10 (à vif)
+# au fil des tours, injectée dans le system prompt de chaque agent via le
+# placeholder {ivresse}. Sert à cadencer la progression des confidences —
+# voir "Progressivité des confidences" dans les fiches personnages.
+ivresse:
+  debut: 0
+  fin: 8
+  # à partir de quel tour l'intensité commence à vraiment se faire sentir
+  seuil_bascule: 6
+
+# Fichiers de personnages (voir dossier characters/)
+personnages:
+  - id: personnage_a
+    fichier: characters/personnage_a.yaml
+  - id: personnage_b
+    fichier: characters/personnage_b.yaml
+
+# Qui parle en premier
+premier_a_parler: personnage_a
+
+output:
+  dossier: "output"
+  format: "markdown"
+
+# Nombre de tentatives de régénération si une réplique est rejetée
+# (préfixe de nom mal formé, caractères non-latins détectés, etc.)
+max_retries_par_replique: 2
